@@ -1,0 +1,23 @@
+{
+	"debug": false,
+	"accentColor": {
+		"r": 50,
+		"g": 50,
+		"b": 50,
+		"a": 0.9
+	},
+	"rainbowEnabled": true,
+	"devToolsOnStartup": true,
+	"ip": "192.168.178.109",
+	"quality": 17,
+	"disableVideo": true,
+	"disableAudio": false,
+	"abSwap": false,
+	"xySwap": false,
+	"limitFPS": true,
+	"autoChangeResolution": true,
+	"encoding": 1,
+	"mouseControl": 1,
+	"firstInstall": false,
+	"autoStartup": false
+}

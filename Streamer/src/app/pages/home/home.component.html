@@ -1,0 +1,64 @@
+<nb-card>
+	<nb-card-header>
+		<h1 class="title">
+			{{ 'PAGES.DASHBOARD.TITLE' | translate }}
+		</h1>
+	</nb-card-header>
+	<nb-card-body>
+		<div class="container">
+		      <div class="row">
+			      <div class="col-7">
+				      <div class="form-group">
+					      <label for="ipInput">Switch IP Address</label>
+					      <input nbInput fullWidth id="ipInput" type="text" class="form-control" placeholder="Switch IP" [value]="IP" (change)="IP = $event"/>
+				      </div>
+				      <div class="form-group">
+					      <label id="qualityLabel" for="qualitySlider">Quality: {{ Quality }}Mbps</label>
+					      <input id="qualitySlider" title="Higher settings increase quality at the cost of latency. Over 10 is probably overkill."
+							      type="range"
+							      class="custom-range" min="4" max="20" [value]="Quality"
+							      (change)="Quality = $event"
+					      />
+				      </div>
+				      <div class="form-group">
+					      <nb-select id="encofingProp" status="primary" fullWidth [selected]="Encoding" (selectedChange)="Encoding = $event">
+						      <nb-option [value]="0">CPU Encoding</nb-option>
+						      <nb-option [value]="1">Nvidia Encoding</nb-option>
+						      <nb-option [value]="2">AMD Encoding</nb-option>
+						      <nb-option [value]="3">Intel Encoding</nb-option>
+					      </nb-select>
+				      </div>
+				      <div class="form-group">
+					      <button id="startBtn" type="button" class="btn btn-dark btn-lg btn-block" (click)="startStreamer()">Start Streamer</button>
+				      </div>
+			      </div>
+			      <div class="col-5 sidePanel">
+				      <div class="form-group" style="margin-top: 8px;">
+					      <label for="mouseControlDrop">Mouse Control {{ MouseControlName }}</label>
+					      <nb-select id="mouseControlDrop" status="primary" fullWidth [selected]="MouseControl" (selectedChange)="MouseControl = $event">
+						      <nb-option [value]="0">Analog</nb-option>
+						      <nb-option [value]="1">Gyro</nb-option>
+					      </nb-select>
+					      <div class="comment">
+			                <center>Press LS + RS to toggle.</center>
+					      </div>
+				      </div>
+				      <div class="form-group">
+					      <nb-toggle id="disableVideo" status="basic" title="Great for using you switch as a controller dongle" [checked]="DisableVideo" (change)="DisableVideo = $event">Disable Video</nb-toggle>
+				      </div>
+				      <div class="form-group">
+					      <nb-toggle id="disableAudio" status="basic" [checked]="DisableAudio" (change)="DisableAudio = $event">Disable Audio</nb-toggle>
+			          </div>
+				      <div class="form-group">
+					      <nb-toggle id="abSwap" class="mr-2" status="basic" title="Makes your controllers labels match xBox controls" [checked]="SwapAB" (change)="SwapAB = $event">Swap A-B</nb-toggle>
+					      <nb-toggle id="xySwap" status="basic" title="Makes your controllers labels match xBox controls" [checked]="SwapXY" (change)="SwapXY = $event">Swap X-Y</nb-toggle>
+				      </div>
+				      <div class="form-group">
+					      <nb-toggle id="limitFPS" status="basic" title="Great when streaming emulators or games running at 30." [checked]="LimitFPS" (change)="LimitFPS = $event">30 FPS Limit</nb-toggle>
+				      </div>
+			      </div>
+		      </div>
+		</div>
+	</nb-card-body>
+</nb-card>
+

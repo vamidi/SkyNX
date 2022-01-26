@@ -1,0 +1,62 @@
+<nb-card>
+	<nb-card-header>
+		<h2>General</h2>
+	</nb-card-header>
+	<nb-card-body>
+		<div class="form-group">
+			<nb-toggle id="autoChangeResolution" status="basic" title="Great for using you switch as a controller dongle"><!-- [checked]="DisableVideo" (change)="DisableVideo = $event" -->
+				Set resolution to 1280 X 720 on streamer start.
+			</nb-toggle>
+		</div>
+		<hr />
+		<h3>Startup</h3>
+		<hr />
+		<div class="form-group">
+			<nb-toggle id="autoStart" status="basic" title="Great for using you switch as a controller dongle"><!-- [checked]="DisableVideo" (change)="DisableVideo = $event" -->
+				Start streamer automatically
+			</nb-toggle>
+		</div>
+		<div class="form-group">
+			<nb-toggle id="autoStartup" status="basic" title="Great for using you switch as a controller dongle"><!-- [checked]="DisableVideo" (change)="DisableVideo = $event" -->
+				Start streamer on startup.
+			</nb-toggle>
+		</div>
+		<hr />
+		<h3>UI</h3>
+		<hr />
+		<div class="form-group">
+			<nb-toggle id="rainbowEnabled" status="basic" title="Great for using you switch as a controller dongle"><!-- [checked]="DisableVideo" (change)="DisableVideo = $event" -->
+				Enable Rainbow Accents
+			</nb-toggle>
+		</div>
+		<hr />
+		<h3>Drivers</h3>
+		<hr />
+		<form class="form-group">
+			<div class="row">
+				<div class="col">
+					<button id="installScpVBusBtn" type="button" class="btn btn-dark btn-block" data-toggle="modal" data-target="#restartModal">Install Controller</button>
+				</div>
+				<div class="col">
+					<button id="unInstallScpVBusBtn" type="button" class="btn btn-danger btn-block">
+						Un-Install Controller
+					</button>
+				</div>
+			</div>
+		</form>
+		<form class="form-group">
+			<div class="row">
+				<div class="col">
+					<button id="installAudioDriverBtn" type="button" class="btn btn-dark btn-block" data-toggle="modal" data-target="#restartModal">
+						Install Audio Driver
+					</button>
+				</div>
+				<div class="col">
+					<button id="unInstallAudioDriverBtn" type="button" class="btn btn-danger btn-block">Un-Install Audio
+						Driver
+					</button>
+				</div>
+			</div>
+		</form>
+	</nb-card-body>
+</nb-card>

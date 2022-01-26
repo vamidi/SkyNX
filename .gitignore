@@ -14,3 +14,7 @@ SkyNX-Streamer/SkyNXStreamer-win32-ia32.zip
 SkyNX/build
 SkyNX/SkyNX.zip
 SkyNX-Streamer/settings.json
+
+.idea/
+.angular/
+node_modules/
