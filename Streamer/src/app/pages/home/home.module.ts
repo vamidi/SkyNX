@@ -14,6 +14,7 @@ import { HomeRoutingModule } from './home-routing.module';
 import { HomeComponent } from './home.component';
 import { StatsComponent } from './stats/stats.component';
 import { SettingsComponent } from './settings/settings.component';
+import { ConsoleComponent } from './console/console.component';
 
 const NB_MODULES = [
 	NbThemeModule,
@@ -27,6 +28,7 @@ const COMPONENTS = [
 	HomeComponent,
 	StatsComponent,
 	SettingsComponent,
+	ConsoleComponent,
 ];
 
 @NgModule({

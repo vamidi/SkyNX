@@ -1,0 +1,25 @@
+{
+	"name": "skynx-server",
+	"version": "1.0.0",
+	"description": "The bestest Electron window.",
+	"repository": "https://github.com/delv0rd/modular-web-server",
+	"license": "MIT",
+	"author": {
+		"name": "Valencio",
+		"email": "valencio.hoffman@gmail.com"
+	},
+	"main": "main.js",
+	"dependencies": {
+		"crc": "^3.8.0",
+		"readdirp": "latest",
+		"robotjs": "latest",
+		"struct": "latest",
+		"vgen-xbox": "^1.0.1",
+		"ws": "latest"
+	},
+	"scripts": {
+		"start": "npm run build:lib && node main.js",
+		"build:lib": "tsc main.ts",
+		"build": "npm run build:lib && nexe main.js -t win32-x86 -o './NxStreamingService.exe'"
+	}
+}

@@ -1,8 +1,10 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, ipcMain } from 'electron';
 
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
+
+import { setDimension, startStreamer, stopStreamer } from './utils';
 
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
@@ -71,23 +73,27 @@ function createWindow(): BrowserWindow {
 }
 
 try {
-	// const usingUI = true;
-	// let originalW;
-	// let originalH;
+	const usingUI = true;
 	// This method will be called when Electron has finished
 	// initialization and is ready to create browser windows.
 	// Some APIs can only be used after this event occurs.
 	// Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
 	app.on('ready', () => {
-		/* if(usingUI) */ setTimeout(createWindow, 400);
+		if(usingUI) setTimeout(createWindow, 400);
 
-		// const primaryDisplay = screen.getPrimaryDisplay();
-		// originalW = primaryDisplay.bounds.width * primaryDisplay.scaleFactor;
-		// originalH = primaryDisplay.bounds.height * primaryDisplay.scaleFactor;
+		const primaryDisplay = screen.getPrimaryDisplay();
+		/*
+		setDimension(
+			primaryDisplay.bounds.width * primaryDisplay.scaleFactor,
+			primaryDisplay.bounds.height * primaryDisplay.scaleFactor
+		);
+		*/
 	});
 
 	// Quit when all windows are closed.
 	app.on('window-all-closed', () => {
+		// stopStreamer();
+
 		// On OS X it is common for applications and their menu bar
 		// to stay active until the user quits explicitly with Cmd + Q
 		if (process.platform !== 'darwin') {
@@ -107,3 +113,16 @@ try {
 	// Catch Error
 	// throw e;
 }
+
+// Register events
+ipcMain.on('connect', (event, arg) => {
+	console.log('connected');
+	// clientSender = event.sender;
+	startStreamer(arg);
+});
+
+ipcMain.on('consoleCommand', (event, fullMessage) => {
+	const args = fullMessage.split(" ");
+	const command = args.shift().toLowerCase();
+	// TODO Will add later
+});

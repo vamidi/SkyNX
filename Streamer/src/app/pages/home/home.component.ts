@@ -105,6 +105,7 @@ export class HomeComponent implements OnInit
 
 	public startStreamer()
 	{
+		console.log('start the server');
 		this.clientService.connect();
 	}
 

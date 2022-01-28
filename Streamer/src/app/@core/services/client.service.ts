@@ -8,8 +8,7 @@ const CLIENT_SETTINGS_PATH: string = 'src/assets/data/settings.json';
 @Injectable({ providedIn: 'root' })
 export class ClientService
 {
-	public get whole(): IClientSetting { return this.clientSettings; }
-
+	private running: boolean = false;
 	private clientSettings: IClientSetting = {
 		debug: false,
 		accentColor: {
@@ -41,6 +40,9 @@ export class ClientService
 			console.log('Run in electron');
 			console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
 			console.log('NodeJS childProcess', this.electronService.childProcess);
+
+			// enable the logger.
+
 		} else {
 			console.log('Run in browser');
 		}
@@ -67,9 +69,29 @@ export class ClientService
 
 	public connect()
 	{
-		this.electronService.ipcRenderer.send('connect', {
+		if(this.running) return;
+		this.electronService.ipcRenderer.send('connect', <IClientSetting>{
 			ip: this.clientSettings.ip,
-			q: this.clientSettings.quality,
+			quality: this.clientSettings.quality,
+			disableVideo: this.clientSettings.disableVideo,
+			disableAudio: this.clientSettings.disableAudio,
+			abSwap: this.clientSettings.abSwap,
+			xySwap: this.clientSettings.xySwap,
+			encoding: this.clientSettings.encoding,
+			limitFPS: this.clientSettings.limitFPS,
+			mouseControl: this.clientSettings.mouseControl
+		});
+
+		this.running = true;
+	}
+
+	public restart()
+	{
+		if(!this.running) return;
+
+		this.electronService.ipcRenderer.send('restart', <IClientSetting>{
+			ip: this.clientSettings.ip,
+			quality: this.clientSettings.quality,
 			disableVideo: this.clientSettings.disableVideo,
 			disableAudio: this.clientSettings.disableAudio,
 			abSwap: this.clientSettings.abSwap,
@@ -79,7 +101,6 @@ export class ClientService
 			mouseControl: this.clientSettings.mouseControl
 		});
 	}
-
 
 	private load(): Promise<IClientSetting> {
 		if (!this.electronService.isElectron) {

@@ -3,6 +3,7 @@
 *.pfs0
 *.nacp
 *.nso
+.vs/
 build/*
 .DS_Store
 *node_modules
