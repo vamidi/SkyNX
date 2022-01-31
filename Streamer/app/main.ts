@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
 
-import { setDimension, startStreamer, stopStreamer } from './utils';
+import { setDimension, startStreamer, stopStreamer } from './streamer.service';
 
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
@@ -116,9 +116,7 @@ try {
 
 // Register events
 ipcMain.on('connect', (event, arg) => {
-	console.log('connected');
-	// clientSender = event.sender;
-	startStreamer(arg);
+	startStreamer(event, arg);
 });
 
 ipcMain.on('consoleCommand', (event, fullMessage) => {

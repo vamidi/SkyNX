@@ -7,7 +7,7 @@
 // const Struct = require('struct');
 // const net = require('net');
 const robot = require("robotjs");
-const VGen = require("vgen-xbox")
+const VGen = require("@vamidicreations/vgen-xbox");
 const vgen = new VGen();
 // const GyroServ = require("./Devlord_modules/GyroServ.js");
 let ip = "0.0.0.0"
@@ -32,9 +32,7 @@ function connect() {
 	 */
 }
 
-
-
-const args = process.argv.slice(" ");
+const args = process.argv;
 if (args.length > 1) {
 	if (args.includes("/ip") && args[args.indexOf("/ip") + 1]) {
 		ip = args[args.indexOf("/ip") + 1];

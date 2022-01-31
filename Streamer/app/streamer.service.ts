@@ -1,6 +1,6 @@
-import { getBounds, IClientSetting, MouseControl, log, serve } from './utils';
-import { ipcMain, screen } from 'electron';
-import { Encoding } from '../../src/app/@core/interfaces/client.interface';
+import { getBounds, IClientSetting, MouseControl, log, serve } from './utils/utils';
+import { app, ipcMain, screen } from 'electron';
+import { Encoding } from './utils/utils';
 import { ChildProcessWithoutNullStreams } from 'child_process';
 const { exec, spawn } = require('child_process');
 
@@ -18,7 +18,8 @@ let clientSender: IpcMainEvent = null;
 let originalW: number = 1280;
 let originalH: number = 720;
 
-export function startStreamer(args: IClientSetting) {
+export function startStreamer(event, args: IClientSetting) {
+    clientSender = event.sender;
     let [captureW, captureH] = getBounds();
 
     if (autoChangeResolution && !restartingStream) {
@@ -27,10 +28,11 @@ export function startStreamer(args: IClientSetting) {
         captureH = 720;
     }
 
-    let cwd = './../service/';
+    let cwd = `${app.getAppPath()}/app/service`;
     if (!serve) {
-        cwd = "./resources/app/../service"
+        cwd = "./resources/app/service"
     }
+    console.log(cwd);
 
     const spawnArgs: string[] = ["/ip", args.ip, "/q", args.quality.toString(), "/w", captureW.toString(), "/h", captureH.toString(), "/s", screen.getPrimaryDisplay().scaleFactor.toString()];
 
@@ -59,11 +61,7 @@ export function startStreamer(args: IClientSetting) {
         spawnArgs.push(MouseControl[args.mouseControl]);
     }
 
-    streamerProcess = spawn(
-        "./NxStreamingService.exe",
-        args,
-        { cwd: cwd, stdio: "pipe" }
-    );
+    streamerProcess = spawn(`${cwd}/NxStreamingService.exe`, spawnArgs, { cwd: cwd, stdio: "pipe" });
     streamerProcess.stdout.on("data", data => {
         log(`${data}`);
         if (!streamerProcessIsRunning) {
@@ -103,10 +101,16 @@ function changeScreenRes(width: number, height: number) {
 export function setDimension(width, height) { originalW = width; originalH = height; }
 
 // Register events
+ipcMain.on('connect', (event, arg) => {
+    console.log('connected');
+    clientSender = event.sender;
+    startStreamer(event, arg);
+});
+
 ipcMain.on('restart', (event, arg) => {
     streamerProcess.kill();
     restartingStream = true;
-    startStreamer(arg);
+    startStreamer(event, arg);
 });
 ipcMain.on('kill', (event, arg) => {
     streamerProcess.kill();

@@ -10,16 +10,19 @@
 	},
 	"main": "main.js",
 	"dependencies": {
+		"@vamidicreations/vgen-xbox": "^1.0.2",
 		"crc": "^3.8.0",
 		"readdirp": "latest",
-		"robotjs": "latest",
+		"robotjs": "^0.6.0",
 		"struct": "latest",
-		"vgen-xbox": "^1.0.1",
 		"ws": "latest"
+	},
+	"engines": {
+		"node": ">=14.0.0"
 	},
 	"scripts": {
 		"start": "npm run build:lib && node main.js",
 		"build:lib": "tsc main.ts",
-		"build": "npm run build:lib && nexe main.js -t win32-x86 -o './NxStreamingService.exe'"
+		"build": "npm run build:lib && nexe main.js -o \"NxStreamingService.exe\" -t windows-x64-14.15.1"
 	}
 }

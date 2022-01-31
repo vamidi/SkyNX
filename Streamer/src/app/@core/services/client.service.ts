@@ -2,13 +2,16 @@ import { Injectable } from '@angular/core';
 import { Encoding, IClientSetting, IClientTypes, MouseControl } from '../interfaces/client.interface';
 import { ElectronService } from './electron/electron.service';
 import { UtilsService } from './utils.service';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 const CLIENT_SETTINGS_PATH: string = 'src/assets/data/settings.json';
 
 @Injectable({ providedIn: 'root' })
 export class ClientService
 {
-	private running: boolean = false;
+	public get IsRunning(): Observable<boolean> { return this.running; }
+
+	private readonly running: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 	private clientSettings: IClientSetting = {
 		debug: false,
 		accentColor: {
@@ -43,6 +46,10 @@ export class ClientService
 
 			// enable the logger.
 
+			//
+			this.electronService.ipcRenderer.on('started', () => this.running.next(true));
+			this.electronService.ipcRenderer.on('close', () => this.running.next(false));
+
 		} else {
 			console.log('Run in browser');
 		}
@@ -69,7 +76,8 @@ export class ClientService
 
 	public connect()
 	{
-		if(this.running) return;
+		if(this.running.getValue()) return;
+		console.log('start the server');
 		this.electronService.ipcRenderer.send('connect', <IClientSetting>{
 			ip: this.clientSettings.ip,
 			quality: this.clientSettings.quality,
@@ -81,14 +89,11 @@ export class ClientService
 			limitFPS: this.clientSettings.limitFPS,
 			mouseControl: this.clientSettings.mouseControl
 		});
-
-		this.running = true;
 	}
 
 	public restart()
 	{
-		if(!this.running) return;
-
+		if(!this.running.getValue()) return;
 		this.electronService.ipcRenderer.send('restart', <IClientSetting>{
 			ip: this.clientSettings.ip,
 			quality: this.clientSettings.quality,
