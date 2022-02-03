@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ClientService } from '../../@core/services/client.service';
 import { Encoding, MouseControl } from '../../@core/interfaces/client.interface';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-home',
 	templateUrl: './home.component.html',
 	styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit
+export class HomeComponent implements OnInit, OnDestroy
 {
 	public get Encoding(): Encoding {
 		return this.clientService.get('encoding') as Encoding;
@@ -99,9 +100,26 @@ export class HomeComponent implements OnInit
 		this.clientService.set('limitFPS', event.target.checked);
 	}
 
+	public btnText: string = '';
+	public clientServerRunning = false;
+
+	protected mainSubscription = new Subscription();
+
+	private readonly startText: string = 'Start Streamer';
+	private readonly endText: string = 'End Streamer';
+
 	constructor(public clientService: ClientService) { }
 
-	ngOnInit(): void { }
+	ngOnInit(): void {
+		this.mainSubscription.add(this.clientService.IsRunning.subscribe((val) => {
+			this.clientServerRunning = val;
+			this.btnText = this.clientServerRunning ? this.endText : this.startText;
+		}));
+	}
+
+	ngOnDestroy(): void {
+		this.mainSubscription.unsubscribe();
+	}
 
 	public startStreamer()
 	{

@@ -21,4 +21,9 @@ export const MENU_ITEMS: NbMenuItem[] = [
 		icon: 'settings-2-outline',
 		link: '/dashboard/settings',
 	},
+	{
+		title: 'Console',
+		icon: 'settings-2-outline',
+		link: '/dashboard/console',
+	},
 ];

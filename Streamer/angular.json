@@ -32,7 +32,9 @@
 							"node_modules/bootstrap/dist/css/bootstrap.css",
 							"src/app/@theme/styles/styles.scss"
 						],
-						"scripts": [],
+						"scripts": [
+							"node_modules/chart.js/dist/chart.min.js"
+						],
 						"customWebpackConfig": {
 							"path": "./angular.webpack.js",
 							"replaceDuplicatePlugins": true
@@ -119,7 +121,9 @@
 						"polyfills": "src/polyfills-test.ts",
 						"tsConfig": "src/tsconfig.spec.json",
 						"karmaConfig": "src/karma.conf.js",
-						"scripts": [],
+						"scripts": [
+							"node_modules/chart.js/dist/chart.min.js"
+						],
 						"styles": [
 							"node_modules/bootstrap/dist/css/bootstrap.css",
 							"src/app/@theme/styles/styles.scss"
