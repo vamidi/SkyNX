@@ -1,10 +1,10 @@
-import { app, BrowserWindow, screen, ipcMain } from 'electron';
+import { app, BrowserWindow, screen } from 'electron';
 
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
 
-import { setDimension, startStreamer, stopStreamer } from './streamer.service';
+import { installationService, startupService, streamerService } from './utils';
 
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
@@ -81,18 +81,17 @@ try {
 	app.on('ready', () => {
 		if(usingUI) setTimeout(createWindow, 400);
 
+		// TODO
 		const primaryDisplay = screen.getPrimaryDisplay();
-		/*
-		setDimension(
+		streamerService.setDimension(
 			primaryDisplay.bounds.width * primaryDisplay.scaleFactor,
 			primaryDisplay.bounds.height * primaryDisplay.scaleFactor
 		);
-		*/
 	});
 
 	// Quit when all windows are closed.
 	app.on('window-all-closed', () => {
-		// stopStreamer();
+		streamerService.stopStreamer();
 
 		// On OS X it is common for applications and their menu bar
 		// to stay active until the user quits explicitly with Cmd + Q
@@ -115,12 +114,6 @@ try {
 }
 
 // Register events
-ipcMain.on('connect', (event, arg) => {
-	startStreamer(event, arg);
-});
-
-ipcMain.on('consoleCommand', (event, fullMessage) => {
-	const args = fullMessage.split(" ");
-	const command = args.shift().toLowerCase();
-	// TODO Will add later
-});
+startupService.initialize();
+installationService.initialize();
+streamerService.initialize();

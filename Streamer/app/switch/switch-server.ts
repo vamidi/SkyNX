@@ -7,8 +7,6 @@ const Struct = require('struct');
 const net = require('net');
 const hidStreamClient = new net.Socket();
 
-const defaultPackageSize = 640;
-
 declare type Protocol = 'udp' | 'rtp';
 declare type SampleRate = '16000' | '22050' | '24000' | '44100' | '48000';
 declare type Encoding = 'NVENC' | 'AMDVCE' | 'QSV' | 'CPU';

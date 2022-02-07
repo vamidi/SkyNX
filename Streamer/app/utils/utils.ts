@@ -6,6 +6,10 @@ const AU = require('ansi_up');
 
 const ansi_up = new AU.default;
 
+export interface IBase {
+    initialize(opt?);
+}
+
 export enum Encoding {
     CPU,
     NVENC,
