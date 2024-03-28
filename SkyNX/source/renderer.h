@@ -5,9 +5,8 @@
 #include <libswscale/swscale.h>
 
 #include "context.h"
-uint32_t frameRate;
 /* Allocates a render context */
-RenderContext *createRenderer(void);
+RenderContext *makeRenderer(void);
 
 /* Draws an image filling all screen */
 void drawSplash(RenderContext *context);
@@ -17,6 +16,8 @@ void handleFrame(RenderContext *context, VideoContext *videoContext);
 
 /* Draws a frame */
 void displayFrame(RenderContext *renderContext);
+
+uint32_t getFPS(void);
 
 /* Deallocates the render context */
 void freeRenderer(RenderContext *context);

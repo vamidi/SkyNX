@@ -19,7 +19,7 @@
       <button id="rld-btn" class="title-bar-tools" style="display: none;"><i class="fas fa-sync-alt"></i></button>
       <button id="dev-btn" class="title-bar-tools" style="display: none;"><i class="fab fa-dev"></i></button>
       <button id="min-btn" class="title-bar-btns"><i class="fas fa-window-minimize"></i></button>
-      <button id="max-btn" class="title-bar-btns"><i class="fas fa-window-maximize"></i></button>
+      <!-- <button id="max-btn" class="title-bar-btns"><i class="fas fa-window-maximize"></i></button> -->
       <button id="close-btn" class="title-bar-btns"><i class="fas fa-window-close"></i></button>
     </div>
   </nav>
@@ -56,8 +56,22 @@
               <div class="dropdown-menu" aria-labelledby="encodingDrop">
                 <a class="dropdown-item" href="javascript:setEncoding('CPU')">CPU Encoding</a>
                 <a class="dropdown-item" href="javascript:setEncoding('NVENC')">Nvidia Encoding</a>
-                <a class="dropdown-item" href="javascript:setEncoding('AMDVCE')">AMD Encoding</a>
+                <a class="dropdown-item" href="javascript:setEncoding('AMDVCE')">AMD Encoding (AMF)</a>
+                <a class="dropdown-item" href="javascript:setEncoding('AMDHEVC')">AMD Encoding (HEVC)</a>
                 <a class="dropdown-item" href="javascript:setEncoding('QSV')">Intel Encoding</a>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle btn-block" type="button" id="vsyncDrop"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Vsync (VFR)
+              </button>
+              <div class="dropdown-menu" aria-labelledby="vsyncDrop">
+                <a class="dropdown-item" href="javascript:setVsync('passthrough')">Passthrough</a>
+                <a class="dropdown-item" href="javascript:setVsync('drop')">Drop</a>
+                <a class="dropdown-item" href="javascript:setVsync('vfr')">VFR</a>
               </div>
             </div>
           </div>
@@ -140,6 +154,10 @@
       <hr />
       <h2>General</h2>
       <hr />
+      <div class="form-group">
+        <label for="monitorInput">Monitor ID (0, 1, etc)</label>
+        <input id="monitorInput" title="Typically your primary monitor is ID 0, however due to Windows stuff this isn't always the case... MUST BE A NUMBER!" type="text" class="form-control" value="0">
+      </div>
       <div class="form-group">
         <label class="switch">
           <input id="autoChangeResolution" type="checkbox">
@@ -245,18 +263,23 @@
       </div>
     </div>
   </div>
-  <script src="js/fontawesome-all.min.js"></script>
-  <script src="js/Chart.min.js"></script>
+  <script src="./js/jquery.min.js"></script>
+  <script src="./js/jquery.min.js"></script>
+  <script src="./js/popper.min.js"></script>
+  <script src="./js/bootstrap.min.js"></script>
+  <script src="./js/fontawesome-all.min.js"></script>
+  <script src="./js/Chart.min.js"></script>
   <script>
-    let $ = require('jquery');
-    require('popper.js');
-    require('bootstrap');
+    const { remote, ipcRenderer } = require("electron");
+    const fs = require('fs');
+    var DB = require('./Devlord_modules/DB.js');
+    // require('popper.js');
     $(function () {
       $('[data-toggle="tooltip"]').tooltip({ boundary: 'window' })
     })
   </script>
-  <script src="./js/animations.js"></script>
   <script src="./js/window.js"></script>
+  <script src="./js/animations.js"></script>
   <script src="./js/settings.js"></script>
   <script src="./js/main.js"></script>
   <script src="./js/stats.js"></script>

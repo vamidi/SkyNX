@@ -1,37 +1,3 @@
-// The following ffmpeg code is inspired by an official ffmpeg example, so here is its Copyright notice:
-
-/*
- * Copyright (c) 2012 Stefano Sabatini
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
-
-
-*
- * @file
- * Demuxing and decoding example.
- *
- * Show how to use the libavformat and libavcodec API to demux and
- * decode audio and video data.
- * @example demuxing_decoding.c
-
-*/
-
 #include <libavutil/samplefmt.h>
 
 #include <switch.h>
@@ -56,47 +22,13 @@ static const SocketInitConfig socketInitConf = {
 
     .sb_efficiency = 2,
 };
-u32 gyroHandles[4];
-void initGyro()
-{
-    hidGetSixAxisSensorHandles(&gyroHandles[0], 2, CONTROLLER_PLAYER_1, TYPE_JOYCON_PAIR);
-    hidGetSixAxisSensorHandles(&gyroHandles[2], 1, CONTROLLER_PLAYER_1, TYPE_PROCONTROLLER);
-    hidGetSixAxisSensorHandles(&gyroHandles[3], 1, CONTROLLER_HANDHELD, TYPE_HANDHELD);
-    hidStartSixAxisSensor(gyroHandles[0]);
-    hidStartSixAxisSensor(gyroHandles[1]);
-    hidStartSixAxisSensor(gyroHandles[2]);
-    hidStartSixAxisSensor(gyroHandles[3]);
-}
-void unInitGyro()
-{
-
-    hidStopSixAxisSensor(gyroHandles[0]);
-    hidStopSixAxisSensor(gyroHandles[1]);
-    hidStopSixAxisSensor(gyroHandles[2]);
-    hidStopSixAxisSensor(gyroHandles[3]);
-}
-void switchInit()
-{
-    plInitialize();
-    romfsInit();
-    networkInit(&socketInitConf);
-    audoutInitialize();
-    audoutStartAudioOut();
-}
-
-void switchDestroy()
-{
-    audoutStopAudioOut();
-    audoutExit();
-    networkDestroy();
-    plExit();
-}
 
 static Thread renderThread;
 static Thread inputHandlerThread;
 static Thread audioHandlerThread;
 void startInput()
 {
+    input_init();
     threadCreate(&inputHandlerThread, inputHandlerLoop, NULL, NULL, 0x1000, 0x2b, 0);
     threadStart(&inputHandlerThread);
 }
@@ -119,38 +51,64 @@ VideoContext *videoContext = NULL;
 ClkrstSession cpuSession;
 void init()
 {
-    /* Init all switch required systems */
-    switchInit();
+    // consoleInit(NULL);
+    appletSetIdleTimeDetectionExtension(AppletIdleTimeDetectionExtension_None);
+    appletSetWirelessPriorityMode(AppletWirelessPriorityMode_OptimizedForWlan);
+    appletSetAutoSleepDisabled(true);
+
+    printf("networkInit\n");
+    network_init(&socketInitConf);
+
+    printf("romfsInit\n");
+    romfsInit();
+    // chdir("romfs:/");
+
+    printf("audoutInitialize\n");
+    audoutInitialize();
+
+    printf("audoutStartAudioOut\n");
+    audoutStartAudioOut();
+
+    printf("clkrstInitialize\n");
     clkrstInitialize();
     clkrstOpenSession(&cpuSession, PcvModuleId_CpuBus, 3);
     clkrstSetClockRate(&cpuSession, 1785000000);
-    renderContext = createRenderer();
+
+    printf("startAudio\n");
+    startAudio();
+
+    printf("startInput\n");
+    startInput();
+
+    printf("makeRenderer\n");
+    renderContext = makeRenderer();
+    printf("createVideoContext\n");
     videoContext = createVideoContext();
     videoContext->renderContext = renderContext;
-    startAudio();
-    startInput();
+    printf("startRender\n");
     startRender(videoContext);
-    initGyro();
-    appletSetIdleTimeDetectionExtension(AppletIdleTimeDetectionExtension_ExtendedUnsafe);
+    printf("Complete INIT!\n");
 }
+
 void unInit()
 {
     freeRenderer(renderContext);
     freeVideoContext(videoContext);
-    unInitGyro();
-    clkrstCloseSession(&cpuSession); //end OC
+    clkrstCloseSession(&cpuSession); // end OC
     clkrstExit();
+    input_unInit();
+    audoutStopAudioOut();
+    audoutExit();
+    network_unInit();
+    plExit();
 }
 bool threadsSleeping = false;
 int main(int argc, char **argv)
 {
     init();
-    static Thread renderThread;
-    static Thread inputHandlerThread;
-    static Thread audioHandlerThread;
     while (appletMainLoop())
     {
-        if (appletGetFocusState() == AppletFocusState_Focused)
+        if (appletGetFocusState() == AppletFocusState_InFocus)
         {
             if (threadsSleeping)
             {
@@ -167,10 +125,11 @@ int main(int argc, char **argv)
             {
                 drawSplash(renderContext);
             }
-            svcSleepThread(14285714ULL); //Nano sleep to keep at 70fps to handle drop frames without stutter
+            svcSleepThread(14285714ULL); // Nano sleep to keep at 70fps to handle drop frames without stutter
         }
         else
         {
+            printf("sleeping\n");
             if (!threadsSleeping)
             {
                 threadPause(&renderThread);
@@ -183,4 +142,5 @@ int main(int argc, char **argv)
     }
     /* Deinitialize all used systems */
     unInit();
+    return 0;
 }

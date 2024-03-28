@@ -9,7 +9,11 @@
 float timeThen = 0;
 float timeNow = 1;
 float delta = 1;
-uint32_t frameRate = 0;
+uint32_t renderFPS = 0;
+uint32_t getFPS()
+{
+    return renderFPS;
+}
 void initDelta()
 {
     timeThen = svcGetSystemTick();
@@ -22,7 +26,7 @@ void loopStart()
     delta = (timeNow - timeThen) / 10000000;
     if (delta > 1)
     {
-        //to much lag. set to 1
+        // to much lag. set to 1
         delta = 1.0f;
     }
 }
@@ -69,7 +73,7 @@ long getDistance(long ax, long ay, long bx, long by)
     return sqrt(a * a + b * b);
 }
 bubble resolveBubble(bubble b1, bubble b2)
-{ //Fix colliding circles
+{ // Fix colliding circles
     long distance_x = b1.x - b2.x;
     long distance_y = b1.y - b2.y;
     long radii_sum = b1.r + b2.r;
@@ -77,9 +81,9 @@ bubble resolveBubble(bubble b1, bubble b2)
     long unit_x = distance_x / distance;
     long unit_y = distance_y / distance;
 
-    b1.x = b2.x + (radii_sum)*unit_x; //Uncollide
-    b1.y = b2.y + (radii_sum)*unit_y; //Uncollide
-    //Conservation of momentum
+    b1.x = b2.x + (radii_sum)*unit_x; // Uncollide
+    b1.y = b2.y + (radii_sum)*unit_y; // Uncollide
+    // Conservation of momentum
     long newVelX1 = (b1.vx * (b1.r - b2.r) + (2 * b2.r * b2.vx)) / radii_sum;
     long newVelY1 = (b1.vy * (b1.r - b2.r) + (2 * b2.r * b2.vy)) / radii_sum;
     // long newVelX2 = (b2.vx * (b2.r - b1.r) + (2 * b1.r * b1.vx)) / radii_sum;
@@ -92,9 +96,9 @@ bubble resolveBubble(bubble b1, bubble b2)
     return newBubble;
 }
 bool detectCircleToCircleCollision(bubble b1, bubble b2)
-{ //check for collision between circles
+{ // check for collision between circles
     long radii_sum = b1.r + b2.r;
-    long distance = getDistance(b1.x, b1.y, b2.x, b2.y); //If distance is less than radius added together a collision is occuring
+    long distance = getDistance(b1.x, b1.y, b2.x, b2.y); // If distance is less than radius added together a collision is occuring
     if (distance < radii_sum)
     {
         return true;
@@ -131,7 +135,7 @@ void resolveCollisions()
             }
         }
         if (!aCollided)
-        { //If nothing collided keep the same data
+        { // If nothing collided keep the same data
             newBubbles[a] = bubbles[a];
         }
         aCollided = false;
@@ -145,29 +149,29 @@ void initBubbles()
 {
     while (bubblesLength < maxBubbles)
     {
-        SDL_Color bubbleColor = {126, 242, 213, 255};
+        SDL_Color bubbleColor = {148, 0, 126, 255};
         float randR = 15;
         if (bubblesLength < 8)
         {
-            SDL_Color nbc = {145, 255, 249, 120};
+            SDL_Color nbc = {120, 0, 102, 120};
             randR = getRandomInt(5, 20);
             bubbleColor = nbc;
         }
         else if (bubblesLength < 13)
         {
-            SDL_Color nbc = {75, 219, 211, 180};
+            SDL_Color nbc = {89, 0, 76, 180};
             randR = getRandomInt(25, 40);
             bubbleColor = nbc;
         }
         else if (bubblesLength < 17)
         {
-            SDL_Color nbc = {24, 161, 153, 200};
+            SDL_Color nbc = {66, 0, 57, 200};
             randR = getRandomInt(45, 60);
             bubbleColor = nbc;
         }
         else if (bubblesLength < 20)
         {
-            SDL_Color nbc = {0, 102, 96, 230};
+            SDL_Color nbc = {46, 0, 40, 230};
             randR = getRandomInt(65, 80);
             bubbleColor = nbc;
         }
@@ -197,10 +201,15 @@ void initBubbles()
     }
 }
 SDL_Texture *logoTexture = NULL;
-RenderContext *createRenderer()
+bool logoLoaded = false;
+RenderContext *makeRenderer()
 {
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+    IMG_Init(IMG_INIT_PNG);
+    TTF_Init();
+    chdir("romfs:/");
+    plInitialize(PlServiceType_User);
     RenderContext *context = malloc(sizeof(RenderContext));
-
     context->window = SDL_CreateWindow("sdl2_gles2", 0, 0, RESX, RESY, SDL_WINDOW_FULLSCREEN);
     if (context->window == NULL)
     {
@@ -218,11 +227,24 @@ RenderContext *createRenderer()
         while (1)
             ;
     }
-    SDL_SetRenderDrawBlendMode(context->renderer, SDL_BLENDMODE_BLEND); //enable transparency
+    SDL_SetRenderDrawBlendMode(context->renderer, SDL_BLENDMODE_BLEND); // enable transparency
 
-    logoTexture = IMG_LoadTexture(context->renderer, "iconTransparent.png");
+    SDL_Log("IMG_LoadTexture iconTransparent");
+    // logoTexture = IMG_LoadTexture(context->renderer, "iconTransparent.png");
+    SDL_Surface *sdllogo = IMG_Load("iconTransparent.png");
+    if (sdllogo == NULL)
+    {
+        SDL_Log("IMG_Load: %s\n", SDL_GetError());
+    }
+    else
+    {
+        SDL_Log("WIDTH: %d\n", sdllogo->w);
+        SDL_Log("HEIGHT: %d\n", sdllogo->h);
+        logoTexture = SDL_CreateTextureFromSurface(context->renderer, sdllogo);
+        SDL_FreeSurface(sdllogo);
+    }
 
-    //Create font cache
+    // Create font cache
     context->yuv_text = SDL_CreateTexture(context->renderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STREAMING, RESX, RESY);
 
     context->rect.x = 0;
@@ -239,6 +261,7 @@ RenderContext *createRenderer()
     PlFontData fontData, fontExtData;
     plGetSharedFontByType(&fontData, PlSharedFontType_Standard);
     plGetSharedFontByType(&fontExtData, PlSharedFontType_NintendoExt);
+    SDL_Log((char *)fontData.address);
     context->font = FC_CreateFont();
     FC_LoadFont_RW(context->font, context->renderer, SDL_RWFromMem((void *)fontData.address, fontData.size), SDL_RWFromMem((void *)fontExtData.address, fontExtData.size), 1, 40, FC_MakeColor(0, 0, 0, 255), TTF_STYLE_NORMAL);
     initDelta();
@@ -354,21 +377,21 @@ void drawGradient(RenderContext *context, int x, int y, int w, int h, SDL_Color 
     int drawLines = 1;
     switch (direction)
     {
-    case 1: //Top to bottom gradient
+    case 1: // Top to bottom gradient
         drawLines = h;
         break;
-    case 2: //Bottom to top gradient
+    case 2: // Bottom to top gradient
         drawLines = h;
         break;
-    case 3: //Left to right gradient
+    case 3: // Left to right gradient
         drawLines = w;
         break;
-    case 4: //Right to left gradient
+    case 4: // Right to left gradient
         drawLines = w;
         break;
     }
     for (int i = 0; i < drawLines; i++)
-    { //Top to bottom gradient
+    { // Top to bottom gradient
         float t = ((float)(i)) / ((float)(drawLines));
         int r = ((float)colourStart.r) * (1.0f - t) + ((float)colourEnd.r) * t;
         int g = ((float)colourStart.g) * (1.0f - t) + ((float)colourEnd.g) * t;
@@ -395,8 +418,8 @@ void drawGradient(RenderContext *context, int x, int y, int w, int h, SDL_Color 
 
 void renderBubbles(RenderContext *context)
 {
-    //Buggy right now. I need to understand C a bit better first.
-    //resolveCollisions();
+    // Buggy right now. I need to understand C a bit better first.
+    // resolveCollisions();
     for (int i = 0; i < bubblesLength; i++)
     {
         bubbles[i].vx += globalForce.vx * delta;
@@ -404,7 +427,7 @@ void renderBubbles(RenderContext *context)
         bubbles[i].x += bubbles[i].vx * delta;
         bubbles[i].y += bubbles[i].vy * delta;
         float negRadius = bubbles[i].r * -1;
-        if (bubbles[i].y < negRadius || bubbles[i].y > 720 + bubbles[i].r + 1) //bubble off top or overflowed to bottom because large delta
+        if (bubbles[i].y < negRadius || bubbles[i].y > 720 + bubbles[i].r + 1) // bubble off top or overflowed to bottom because large delta
         {
 
             float randYv = getRandomInt(20, 50) * -1;
@@ -436,32 +459,40 @@ void renderBubbles(RenderContext *context)
         fillCircle(context, bubbles[i].x, bubbles[i].y, bubbles[i].r, bubbles[i].color);
     }
 }
+
 void drawSplash(RenderContext *context)
 {
     loopStart();
     SDL_Color bg = {50, 50, 50, 255};
     SDL_ClearScreen(context, bg);
 
-    SDL_Color bgf = {0, 181, 178, 255};
-    SDL_Color bgt = {0, 41, 40, 255};
+    SDL_Color bgf = {95, 0, 135, 255};
+    SDL_Color bgt = {87, 1, 94, 255};
     drawGradient(context, 0, 0, 1280, 720, bgf, bgt, 1);
 
     renderBubbles(context);
 
-    SDL_Color gf = {0, 0, 0, 250};
+    SDL_Color gf = {0, 0, 0, 200};
     SDL_Color gt = {0, 0, 0, 0};
     drawGradient(context, 0, 0, 1280, 180, gf, gt, 1);
     drawGradient(context, 0, 720 - 100, 1280, 180, gf, gt, 2);
 
-    int imgW = 0;
-    int imgH = 0;
-    SDL_QueryTexture(logoTexture, NULL, NULL, &imgW, &imgH);
+    int imgW = 256;
+    int imgH = 256;
+    // printf("SDL_QueryTexture\n");
+    // SDL_QueryTexture(logoTexture, NULL, NULL, &imgW, &imgH);
+    // imgDest.x = (1280 / 2) - (imgW / 2);
+    // imgDest.y = (720 / 2) - (imgH / 2);
     SDL_Rect imgDest;
     imgDest.x = (1280 / 2) - (imgW / 2);
     imgDest.y = (720 / 2) - (imgH / 2);
     imgDest.w = imgW;
     imgDest.h = imgH;
-    SDL_RenderCopy(context->renderer, logoTexture, NULL, &imgDest);
+    if (logoTexture != NULL)
+    {
+        // printf("SDL_RenderCopy\n");
+        // SDL_RenderCopy(context->renderer, logoTexture, NULL, &imgDest);
+    }
 
     SDL_Color white = {230, 230, 230, 255};
     u32 ip = gethostid();
@@ -489,7 +520,7 @@ void handleFrame(RenderContext *renderContext, VideoContext *videoContext)
     if (++videoContext->video_frame_count % 60 == 0)
     {
         new_time = svcGetSystemTick();
-        frameRate = (uint32_t)(60.0 / ((new_time - old_time) / 19200000.0));
+        renderFPS = (uint32_t)(60.0 / ((new_time - old_time) / 19200000.0));
         old_time = new_time;
     }
 }
@@ -514,4 +545,8 @@ void displayFrame(RenderContext *renderContext)
 void freeRenderer(RenderContext *context)
 {
     free(context);
+    plExit();
+    IMG_Quit();
+    TTF_Quit();
+    SDL_Quit();
 }

@@ -31,26 +31,6 @@ typedef struct
     int32_t lJoyY4;
     int32_t rJoyX4;
     int32_t rJoyY4;
-    uint32_t heldKeys5;
-    int32_t lJoyX5;
-    int32_t lJoyY5;
-    int32_t rJoyX5;
-    int32_t rJoyY5;
-    uint32_t heldKeys6;
-    int32_t lJoyX6;
-    int32_t lJoyY6;
-    int32_t rJoyX6;
-    int32_t rJoyY6;
-    uint32_t heldKeys7;
-    int32_t lJoyX7;
-    int32_t lJoyY7;
-    int32_t rJoyX7;
-    int32_t rJoyY7;
-    uint32_t heldKeys8;
-    int32_t lJoyX8;
-    int32_t lJoyY8;
-    int32_t rJoyX8;
-    int32_t rJoyY8;
     uint32_t touchX1;
     uint32_t touchY1;
     uint32_t touchX2;
@@ -61,16 +41,16 @@ typedef struct
     float_t gyroX;
     float_t gyroY;
     float_t gyroZ;
+    uint32_t renderFPS;
     uint32_t controllerCount;
-    uint32_t frameRate;
     uint64_t streamEnd;
 } JoyPkg;
 
 /* Init nx network and av network */
-void networkInit(const SocketInitConfig *conf);
+void network_init(const SocketInitConfig *conf);
 
 /* Deinitialize nx network and av network*/
-void networkDestroy();
+void network_unInit();
 
 /* Creates the context for sending joycon inputs */
 JoyConSocket *createJoyConSocket();
@@ -81,7 +61,7 @@ void freeJoyConSocket(JoyConSocket *connection);
 /* Send joycon input over the network */
 void sendJoyConInput(JoyConSocket *connection, const JoyPkg *pkg);
 
-/* 
+/*
  * Binds, listens and accepts connection with the server
  * If the connection was previously opened reuses it
  */

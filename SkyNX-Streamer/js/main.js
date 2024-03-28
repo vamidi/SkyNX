@@ -1,23 +1,23 @@
 
 ipcRenderer.on('close', function (event, data) {
-    $("#startBtn").addClass('btn-dark').removeClass('btn-danger');
-    $("#startBtn").html("Start Streamer");
-    running = false;
 });
-ipcRenderer.on('started', function (event, data) {
+var running = false;
+function connect() {
     $('#startBtn').addClass('btn-danger').removeClass('btn-dark');
     $("#startBtn").html("End Streamer");
     running = true;
-})
-var running = false;
-function connect() {
-    ipcRenderer.send('connect', { ip: clientSettings.ip, q: clientSettings.quality, disableVideo: clientSettings.disableVideo, disableAudio: clientSettings.disableAudio, abxySwap: clientSettings.abxySwap, encoding: clientSettings.encoding, limitFPS: clientSettings.limitFPS, mouseControl: clientSettings.mouseControl });
+    ipcRenderer.send('connect', { ip: clientSettings.ip, q: clientSettings.quality, disableVideo: clientSettings.disableVideo, disableAudio: clientSettings.disableAudio, abxySwap: clientSettings.abxySwap, encoding: clientSettings.encoding, limitFPS: clientSettings.limitFPS, mouseControl: clientSettings.mouseControl, vsync: clientSettings.vsync, monitorID: clientSettings.monitorID});
 }
 function disconnect() {
+    $("#startBtn").addClass('btn-dark').removeClass('btn-danger');
+    $("#startBtn").html("Start Streamer");
     ipcRenderer.send('kill');
+    running = false;
 }
 function restart() {
-    ipcRenderer.send('restart', { ip: clientSettings.ip, q: clientSettings.quality, disableVideo: clientSettings.disableVideo, disableAudio: clientSettings.disableAudio, abxySwap: clientSettings.abxySwap, encoding: clientSettings.encoding, limitFPS: clientSettings.limitFPS, mouseControl: clientSettings.mouseControl });
+    if (running) {
+        ipcRenderer.send('restart', { ip: clientSettings.ip, q: clientSettings.quality, disableVideo: clientSettings.disableVideo, disableAudio: clientSettings.disableAudio, abxySwap: clientSettings.abxySwap, encoding: clientSettings.encoding, limitFPS: clientSettings.limitFPS, mouseControl: clientSettings.mouseControl, vsync: clientSettings.vsync, monitorID: clientSettings.monitorID});
+    }
 }
 $('#startBtn').click(function () {
     if (!running) {
